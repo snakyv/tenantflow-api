@@ -120,4 +120,4 @@ async def stripe_webhook(
         event = construct_webhook_event(payload, stripe_signature)
     except StripeWebhookVerificationError as exc:
         raise HTTPException(status_code=400, detail="Invalid Stripe webhook") from exc
-    await process_stripe_event(session, dict(event))
+    await process_stripe_event(session, event)
