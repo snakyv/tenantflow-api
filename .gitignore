@@ -1,0 +1,47 @@
+# Local Python environments
+.venv/
+venv/
+
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.cache/
+.hypothesis/
+.tox/
+.nox/
+
+# Coverage and test artifacts
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+reports/
+
+# Local environment / secrets
+.env
+.env.*
+!.env.example
+
+# IDE / editor metadata
+.idea/
+.vscode/
+
+# Build / packaging artifacts
+dist/
+build/
+*.egg-info/
+
+# Local runtime artifacts
+*.log
+*.pid
+celerybeat-schedule
+celerybeat-schedule.*
+*.sqlite
+*.sqlite3
+
+# OS metadata
+.DS_Store
+Thumbs.db

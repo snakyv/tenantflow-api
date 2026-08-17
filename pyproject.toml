@@ -1,0 +1,101 @@
+[build-system]
+requires = ["hatchling==1.32.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "tenantflow-api"
+version = "0.1.1"
+description = "Production-oriented multi-tenant SaaS backend built with FastAPI, PostgreSQL, Redis, async SQLAlchemy, Stripe and OpenTelemetry."
+readme = "README.md"
+requires-python = ">=3.12,<3.14"
+license = { text = "MIT" }
+authors = [{ name = "Vitalii Zadorozhnyi" }]
+dependencies = [
+  "fastapi==0.141.1",
+  "uvicorn[standard]==0.52.3",
+  "pydantic==2.13.4",
+  "pydantic-settings==2.15.0",
+  "sqlalchemy[asyncio]==2.0.51",
+  "asyncpg==0.31.0",
+  "alembic==1.19.1",
+  "pyjwt[crypto]==2.13.0",
+  "cryptography==50.0.0",
+  "argon2-cffi==25.1.0",
+  "redis==8.1.0",
+  "celery==5.6.3",
+  "httpx==0.28.1",
+  "boto3==1.43.72",
+  "stripe[async]==15.5.0",
+  "prometheus-client==0.26.0",
+  "opentelemetry-api==1.44.0",
+  "opentelemetry-sdk==1.44.0",
+  "opentelemetry-exporter-otlp==1.44.0",
+  "opentelemetry-instrumentation-fastapi==0.65b0",
+  "opentelemetry-instrumentation-sqlalchemy==0.65b0",
+  "opentelemetry-instrumentation-httpx==0.65b0",
+  "opentelemetry-instrumentation-redis==0.65b0",
+  "python-multipart==0.0.32",
+  "email-validator==2.3.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest==9.1.1",
+  "pytest-asyncio==1.4.0",
+  "pytest-cov==7.1.0",
+  "ruff==0.16.3",
+  "mypy==2.3.1",
+  "pre-commit==4.6.2",
+  "pip-audit==2.10.1",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["app"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+pythonpath = ["."]
+markers = [
+  "integration: requires PostgreSQL and Redis",
+  "security: security and tenant-isolation behavior",
+  "e2e: end-to-end workflow",
+]
+addopts = "-ra --strict-markers"
+
+[tool.coverage.run]
+branch = true
+source = ["app"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+exclude_lines = ["pragma: no cover", "if TYPE_CHECKING:"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "UP", "B", "ASYNC", "S", "RUF"]
+ignore = ["S101", "B008", "E501"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["S105", "S106", "S311"]
+"alembic/**/*.py" = ["E501"]
+"app/core/config.py" = ["S105"]
+
+[tool.mypy]
+python_version = "3.12"
+plugins = ["pydantic.mypy"]
+disallow_untyped_defs = true
+check_untyped_defs = true
+warn_return_any = true
+warn_unused_ignores = true
+no_implicit_optional = true
+ignore_missing_imports = true
+exclude = ["alembic/versions"]
+
+[[tool.mypy.overrides]]
+module = ["celery.*", "boto3.*", "stripe.*"]
+ignore_missing_imports = true
