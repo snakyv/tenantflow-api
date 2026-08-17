@@ -55,3 +55,36 @@ The format follows Keep a Changelog principles. The project intends to use Seman
 - Separate internal/public MinIO endpoints for containerized pre-signed URL flows.
 - Windows bootstrap and target-environment release-validation scripts.
 - Integration-test Redis isolation to keep rate-limit state deterministic.
+
+## [1.0.0] - 2026-08-17
+
+### Added
+
+- Production-oriented multi-tenant SaaS backend with FastAPI.
+- PostgreSQL tenant isolation and RBAC.
+- JWT authentication with rotating refresh tokens.
+- Redis-backed rate limiting.
+- Database-backed idempotency.
+- Background jobs with Celery.
+- S3-compatible file storage with MinIO.
+- Signed outbound webhooks.
+- Stripe test-mode subscriptions and billing.
+- Audit logging.
+- Prometheus metrics and OpenTelemetry integration.
+- Docker and GitHub Actions release validation.
+
+### Fixed
+
+- Stripe v15 webhook event conversion compatibility.
+
+### Validation
+
+- 61 tests passed.
+- 64.37% test coverage.
+- Ruff passed.
+- mypy passed for 92 source files.
+- No known dependency vulnerabilities reported by pip-audit.
+- Docker image build passed on Python 3.12.
+- Real Stripe Sandbox checkout completed successfully.
+- Stripe webhook signature verification and processing completed successfully.
+- Subscription synchronized from free/inactive to pro/active.
