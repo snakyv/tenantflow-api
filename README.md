@@ -1,8 +1,32 @@
 # TenantFlow API
 
+[![CI](https://github.com/snakyv/tenantflow-api/actions/workflows/ci.yml/badge.svg)](https://github.com/snakyv/tenantflow-api/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/snakyv/tenantflow-api/actions/workflows/codeql.yml/badge.svg)](https://github.com/snakyv/tenantflow-api/actions/workflows/codeql.yml)
+[![Release](https://img.shields.io/github/v/release/snakyv/tenantflow-api?display_name=tag&sort=semver)](https://github.com/snakyv/tenantflow-api/releases/latest)
+[![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![License](https://img.shields.io/github/license/snakyv/tenantflow-api)](LICENSE)
+
 Production-oriented multi-tenant SaaS backend built with FastAPI, PostgreSQL, Redis, async SQLAlchemy, Stripe test mode and OpenTelemetry.
 
 TenantFlow is intentionally built as a modular monolith rather than a collection of artificial microservices. The project focuses on the backend concerns that usually appear after CRUD is no longer the hard part: tenant isolation, authorization, transaction boundaries, request idempotency, durable background work, signed webhooks, object storage, billing synchronization, observability and automated integration testing.
+
+## Release status
+
+**Latest stable release: `v1.0.0`**
+
+The current release has been validated on Windows 11 with Python 3.12 and Docker Desktop. The latest full release gate completed with:
+
+- **61 passing tests** across unit, security, integration and E2E suites;
+- **64.37% application coverage**, above the configured 60% floor;
+- **Ruff passed**;
+- **mypy passed across 92 source files**;
+- **`pip-audit` reported no known vulnerabilities** in auditable dependencies;
+- **Docker image build passed** on `python:3.12-slim`;
+- **Stripe Sandbox E2E passed**, including Checkout, signed webhook processing and subscription synchronization;
+- **GitHub Actions CI and CodeQL are enabled and passing** for the validated release.
+
+See [`VALIDATION.md`](VALIDATION.md) for the exact validation record.
+
 
 ## Engineering highlights
 
@@ -49,12 +73,12 @@ The implementation is a **modular monolith**. PostgreSQL is the durable source o
 | API | FastAPI 0.141.1 |
 | Validation | Pydantic v2 |
 | Database | PostgreSQL 18.6 |
-| ORM | SQLAlchemy 2.0 async + asyncpg |
+| ORM | SQLAlchemy 2.0.52 async + asyncpg 0.31.0 |
 | Migrations | Alembic 1.19.1 |
 | Coordination | Redis 8.10 |
 | Jobs | Celery 5.6 |
 | Storage | S3-compatible API / MinIO locally |
-| Billing | Stripe test mode |
+| Billing | Stripe 15.5.0, Sandbox/test mode |
 | Metrics | Prometheus |
 | Tracing | OpenTelemetry + Jaeger 2 |
 | QA | pytest, Ruff, mypy, pip-audit |
@@ -321,6 +345,21 @@ The checkout flow:
 - passes an idempotency key to Stripe POST operations;
 - adds organization metadata to both Checkout Session and subscription data.
 
+### Validated Sandbox E2E
+
+The complete external billing path has been exercised against Stripe Sandbox:
+
+```text
+TenantFlow API
+    -> Stripe Checkout
+    -> Stripe subscription
+    -> signed Stripe webhook
+    -> TenantFlow webhook handler
+    -> PostgreSQL subscription state
+```
+
+The validated organization state changed from `free / inactive` to `pro / active`, and the observed Stripe webhook deliveries returned `204 No Content`. No live-mode Stripe credentials or real card data were used.
+
 The webhook flow:
 
 - reads the raw HTTP request body;
@@ -389,7 +428,7 @@ On the target Windows 11 / Python 3.12 machine, the complete local release gate 
 
 GitHub Actions is configured to perform those gates using Python 3.12 with PostgreSQL and Redis service containers. The initial CI coverage floor is deliberately set to **60%** rather than manufacturing low-value tests for a vanity number. Raise the threshold as billing, storage and worker integration tests expand. A separate CodeQL workflow performs security-oriented static analysis, and Dependabot watches Python, Docker and GitHub Actions dependencies.
 
-The latest full local release gate on Windows 11 / Python 3.12 / Docker Desktop passed **60 tests** with **64.12% coverage**, passed Ruff and mypy, reported no known vulnerabilities in auditable dependencies, and built the Docker image successfully. See [`VALIDATION.md`](VALIDATION.md) for the exact record. Public GitHub Actions and CodeQL status remain pending until the first push, so no green CI badge is shown yet.
+The latest full local release gate on Windows 11 / Python 3.12 / Docker Desktop passed **61 tests** with **64.37% coverage**, passed Ruff and mypy across **92 source files**, reported no known vulnerabilities in auditable dependencies, and built the Docker image successfully. A real Stripe Sandbox end-to-end checkout flow also passed, including signed webhook processing and synchronization of the subscription state in PostgreSQL. GitHub Actions CI and CodeQL are enabled and passing for the validated `v1.0.0` release. See [`VALIDATION.md`](VALIDATION.md) for the exact record.
 
 ## Engineering decisions
 
@@ -403,7 +442,7 @@ Architecture Decision Records live under [`docs/adr`](docs/adr):
 
 ## Deployment status
 
-No paid cloud infrastructure is provisioned by this repository. The application is containerized and cloud-portable, but a public deployment should be added only after selecting a provider, configuring managed PostgreSQL/Redis/object storage and verifying the complete definition of done. This avoids publishing a fake demo URL or silently creating billable resources.
+No paid cloud infrastructure is provisioned by this repository. `v1.0.0` is a validated local/Docker/CI release rather than a claim of a production cloud deployment. The application is containerized and cloud-portable, but a public deployment should be added only after selecting a provider, configuring managed PostgreSQL/Redis/object storage, production secrets and TLS, and verifying the complete definition of done. This avoids publishing a fake demo URL or silently creating billable resources.
 
 ## Security
 
