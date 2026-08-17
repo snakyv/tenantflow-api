@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "tenantflow-api"
-version = "0.1.1"
+version = "1.0.0"
 description = "Production-oriented multi-tenant SaaS backend built with FastAPI, PostgreSQL, Redis, async SQLAlchemy, Stripe and OpenTelemetry."
 readme = "README.md"
 requires-python = ">=3.12,<3.14"
