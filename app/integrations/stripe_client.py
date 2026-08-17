@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 from uuid import UUID
 
 from app.core.config import get_settings
@@ -76,12 +76,13 @@ class StripeWebhookVerificationError(ValueError):
     """Raised when Stripe's signature verification rejects the raw webhook payload."""
 
 
-def construct_webhook_event(payload: bytes, signature: str) -> Any:
+def construct_webhook_event(payload: bytes, signature: str) -> dict[str, Any]:
     import stripe
 
     settings = get_settings()
     client = stripe.StripeClient(settings.stripe_secret_key or "sk_test_unconfigured")
     try:
-        return client.construct_event(payload, signature, settings.stripe_webhook_secret)
+        event = client.construct_event(payload, signature, settings.stripe_webhook_secret)
     except (ValueError, stripe.error.SignatureVerificationError) as exc:
         raise StripeWebhookVerificationError("Invalid Stripe webhook") from exc
+    return cast(dict[str, Any], event.to_dict())
