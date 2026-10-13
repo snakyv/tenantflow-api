@@ -68,7 +68,7 @@ jobs:
       - name: Build image
         run: docker build -t tenantflow-api:ci .
       - name: Upload coverage
-        uses: actions/upload-artifact@v7.0.1
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: coverage.xml
           path: coverage.xml
